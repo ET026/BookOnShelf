@@ -10,17 +10,29 @@
 </EditForm>
 
 
+@* <div class="card" style="width: 18rem;">
+    <img src="@book?.FrontCover" class="card-img-top" alt="...">
+    <div class="card-body">
+        <h5 class="card-title">@book.Title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+</div> *@
 
 @code {
     [Parameter]
     public Books book { get; set; } = new Books();
+
+    public Languages language { get; set; } = new Languages();
+    public Genres genre { get; set; } = new Genres();
+    public BooksWriters booksWriters { get; set; } = new BooksWriters();
 
 
 
     public async Task GetBookFromISBN()
     {
         var client = new HttpClient();
-        var apiKey = "AIzaSyCx9B3rEAA0e_9OfCbOv3q0fv0lXgb9PCI"; // Replace this with your Google Books API key
+        var apiKey = "API-KEY-HERE"; // Replace this with your Google Books API key
         var requestUri = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{book.ISBNNumber}&key={apiKey}";
 
         try
@@ -32,18 +44,22 @@
 
                 if (!string.IsNullOrEmpty(responseBody))
                 {
-                    // Deserialize the JSON response into a BookInfo object
+
                     dynamic bookInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(responseBody);
 
-                    var bookTitel = bookInfo.items[0].volumeInfo.title;
-                    var bookPageCount = bookInfo.items[0].volumeInfo.pageCount;
-                    var description = bookInfo.items[0].volumeInfo.description;
+                    book.Title = bookInfo.items[0].volumeInfo.title;
+                    book.BookPages = bookInfo.items[0].volumeInfo.pageCount;
+                    book.Description = bookInfo.items[0].volumeInfo.description;
+                    language.LanguageName = bookInfo.items[0].volumeInfo.language;
+                    genre.GenreName = bookInfo.items[0].volumeInfo.categories;
 
                     
+
                     Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
-                    Console.WriteLine(bookTitel);
-                    Console.WriteLine(bookPageCount);
-                    Console.WriteLine(description);
+                    Console.WriteLine(book.Title);
+                    Console.WriteLine(book.BookPages);
+                    Console.WriteLine(book.Description);
+                    Console.WriteLine(language.LanguageName);
                     Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
 
                     

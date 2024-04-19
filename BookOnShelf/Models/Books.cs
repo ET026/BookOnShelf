@@ -29,6 +29,10 @@ namespace BookOnShelf.Data.Models
         [Range(1, 1000, ErrorMessage = "Please enter a number between 1 and 1000")]
         public int BookQuantity { get; set; }
 
+        [Required(ErrorMessage = "Please enter a description!")]
+        [Column(TypeName = "varchar(300)")]
+        public string Description { get; set; }
+
         [Required(ErrorMessage = "Please enter the file for the front cover!")]
         [Column(TypeName = "varbinary(max)")]
         public byte[] FrontCover { get; set; }
