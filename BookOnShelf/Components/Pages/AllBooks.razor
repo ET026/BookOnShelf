@@ -4,36 +4,44 @@
 @using Microsoft.EntityFrameworkCore
 
 
-@inject ApplicationDbContext context
+@inject ApplicationDbContext Context
 
 
 @rendermode InteractiveServer
 <PageTitle>All Books</PageTitle>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
-    @foreach (var book in books)
+    @if(Books != null)
     {
-        <div class="card" style="width: 18rem;">
-            <img src="@book.FrontCover" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">@book.Title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+        @foreach (var book in Books)
+        {
+            <div class="card" style="width: 18rem;">
+                <img src="@book.FrontCover" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">@book.Title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
             </div>
-        </div>
+        }
     }
+    else
+    {
+
+    }
+    
     
 </div>
 
 @code {
-    public List<Books> books;
-    public List<BooksWriters> booksWriters;
+    public List<Books> Books;
+    public List<BooksWriters> BooksWriters;
 
     protected override async Task OnInitializedAsync()
     {
-        booksWriters = await context.BooksWriters.ToListAsync();
+        BooksWriters = await Context.BooksWriters.ToListAsync();
 
-        books = await context.Books
+        Books = await Context.Books
         .Include(books => books.Language)
         .Include(books => books.Genre)
         .ToListAsync();

@@ -1,0 +1,69 @@
+﻿@page "/ApiTest"
+@using System.Text.Json.Serialization
+
+@rendermode InteractiveServer
+
+
+<EditForm Model="book" OnValidSubmit="GetBookFromISBN" FormName="ISBN">
+    <InputText @bind-Value="book.ISBNNumber">Enter ISBN</InputText>
+    <button type="submit">Submit</button>
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public Books book { get; set; } = new Books();
+
+
+
+    public async Task GetBookFromISBN()
+    {
+        var client = new HttpClient();
+        var apiKey = "AIzaSyCx9B3rEAA0e_9OfCbOv3q0fv0lXgb9PCI"; // Replace this with your Google Books API key
+        var requestUri = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{book.ISBNNumber}&key={apiKey}";
+
+        try
+        {
+            using (var response = await client.GetAsync(requestUri))
+            {
+                response.EnsureSuccessStatusCode();
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                if (!string.IsNullOrEmpty(responseBody))
+                {
+                    // Deserialize the JSON response into a BookInfo object
+                    dynamic bookInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(responseBody);
+
+                    var bookTitel = bookInfo.items[0].volumeInfo.title;
+                    var bookPageCount = bookInfo.items[0].volumeInfo.pageCount;
+                    var description = bookInfo.items[0].volumeInfo.description;
+
+                    
+                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
+                    Console.WriteLine(bookTitel);
+                    Console.WriteLine(bookPageCount);
+                    Console.WriteLine(description);
+                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
+
+                    
+                
+                    // // Print the organized book information
+                    // Console.WriteLine($"Title: {bookInfo.Title}");
+                    // Console.WriteLine($"Authors: {string.Join(", ", bookInfo.Authors)}");
+                    // Console.WriteLine($"Published Date: {bookInfo.PublishedDate}");
+                    // Console.WriteLine($"Description: {bookInfo.}");
+                    // Console.WriteLine($"Thumbnail URL: {bookInfo.ThumbnailUrl}");
+                }
+                else
+                {
+                    Console.WriteLine("No book found for the provided ISBN.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
