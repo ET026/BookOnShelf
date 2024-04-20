@@ -1,6 +1,7 @@
 using BookOnShelf.Components;
 using BookOnShelf.Components.Account;
 using BookOnShelf.Data;
+using BookOnShelf.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -69,7 +70,7 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope())
 {
     UserManager<ApplicationUser>? userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
+    Addresses addresses;
     string email = "admin@gmail.com";
     string password = "Password123!";
 
@@ -79,6 +80,8 @@ using (var scope = app.Services.CreateScope())
         user.UserName = email;
         user.Email = email;
         user.EmailConfirmed = true;
+        user.Name = "admin";
+        user.Surname = "admin";
 
         await userManager.CreateAsync(user, password);
 

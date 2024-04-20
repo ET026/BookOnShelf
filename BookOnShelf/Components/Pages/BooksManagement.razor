@@ -1,5 +1,5 @@
 ﻿@page "/ApiTest"
-@using System.Text.Json.Serialization
+
 
 @rendermode InteractiveServer
 
@@ -10,15 +10,41 @@
 </EditForm>
 
 
-@* <div class="card" style="width: 18rem;">
-    <img src="@book?.FrontCover" class="card-img-top" alt="...">
-    <div class="card-body">
-        <h5 class="card-title">@book.Title</h5>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-    </div>
-</div> *@
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="http://books.google.com/books/content?id=i-VtzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api" class="img-fluid rounded-start" alt="Sorry i am tired so loading the image failed D:">
+        </div>
 
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">Can't Hurt me'</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <button class="btn btn-green">Reserveren</button>
+                <button class="bi bi-info-circle btn end-0" id="infoButton" @onmouseover="ShowPopup" @onmouseleave="HidePopup"></button>
+                <div class="popup" id="popup" style="display: @popupDisplay">
+                    <p>
+
+                    </p>
+                    <hr>
+              
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+@* 
+1.Boek titel - X
+2.Img - X
+3.Description - X
+4.Exemplaren
+5.Paginas
+6.Genre
+7.Taal
+8.ISBN
+*@
 @code {
     [Parameter]
     public Books book { get; set; } = new Books();
@@ -26,13 +52,14 @@
     public Languages language { get; set; } = new Languages();
     public Genres genre { get; set; } = new Genres();
     public BooksWriters booksWriters { get; set; } = new BooksWriters();
+    public Nationality nationality { get; set; } = new Nationality();
 
 
 
     public async Task GetBookFromISBN()
     {
         var client = new HttpClient();
-        var apiKey = "API-KEY-HERE"; // Replace this with your Google Books API key
+        var apiKey = "xoxoxo"; // Replace this with your Google Books API key
         var requestUri = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{book.ISBNNumber}&key={apiKey}";
 
         try
@@ -52,24 +79,9 @@
                     book.Description = bookInfo.items[0].volumeInfo.description;
                     language.LanguageName = bookInfo.items[0].volumeInfo.language;
                     genre.GenreName = bookInfo.items[0].volumeInfo.categories;
+                    // nationality.NationalityName = bookInfo.items[0].volumeInfo.nationa
 
-                    
-
-                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
-                    Console.WriteLine(book.Title);
-                    Console.WriteLine(book.BookPages);
-                    Console.WriteLine(book.Description);
-                    Console.WriteLine(language.LanguageName);
-                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAA");
-
-                    
-                
-                    // // Print the organized book information
-                    // Console.WriteLine($"Title: {bookInfo.Title}");
-                    // Console.WriteLine($"Authors: {string.Join(", ", bookInfo.Authors)}");
-                    // Console.WriteLine($"Published Date: {bookInfo.PublishedDate}");
-                    // Console.WriteLine($"Description: {bookInfo.}");
-                    // Console.WriteLine($"Thumbnail URL: {bookInfo.ThumbnailUrl}");
+                    Console.WriteLine(bookInfo);
                 }
                 else
                 {
@@ -81,5 +93,18 @@
         {
             Console.WriteLine($"Error: {ex.Message}");
         }
+    }
+}
+@code {
+    private string popupDisplay = "none";
+
+    private void ShowPopup()
+    {
+        popupDisplay = "block";
+    }
+
+    private void HidePopup()
+    {
+        popupDisplay = "none";
     }
 }

@@ -12,7 +12,6 @@ namespace BookOnShelf.Data
         public DbSet<BooksWriters> BooksWriters { get; set; }
         public DbSet<Reserved> Reserved { get; set; }
         public DbSet<BorrowedBooks> BorrowedBooks { get; set; }
-        public DbSet<UsersExtended> UsersExtended { get; set; }
         public DbSet<Addresses> addresses { get; set; }
         public DbSet<Genres> genres { get; set; }
         public DbSet<Books> books { get; set; }
