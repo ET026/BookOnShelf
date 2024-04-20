@@ -6,11 +6,45 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BookOnShelf.Migrations
 {
     /// <inheritdoc />
-    public partial class updateDB : Migration
+    public partial class DBStart : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<DateOnly>(
+                name: "DateOfBirth",
+                table: "AspNetUsers",
+                type: "date",
+                nullable: false,
+                defaultValue: new DateOnly(1, 1, 1));
+
+            migrationBuilder.AddColumn<int>(
+                name: "FkAddressId",
+                table: "AspNetUsers",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<string>(
+                name: "MiddleName",
+                table: "AspNetUsers",
+                type: "nvarchar(50)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "AspNetUsers",
+                type: "nvarchar(50)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Surname",
+                table: "AspNetUsers",
+                type: "nvarchar(50)",
+                nullable: false,
+                defaultValue: "");
+
             migrationBuilder.CreateTable(
                 name: "Addresses",
                 columns: table => new
@@ -26,23 +60,6 @@ namespace BookOnShelf.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Addresses", x => x.AddressId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Authors",
-                columns: table => new
-                {
-                    AuthorId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    MiddleName = table.Column<string>(type: "nvarchar(50)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    Nationality = table.Column<string>(type: "nvarchar(50)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Authors", x => x.AuthorId);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,33 +89,16 @@ namespace BookOnShelf.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsersExtended",
+                name: "Nationality",
                 columns: table => new
                 {
-                    UsersExtendedId = table.Column<int>(type: "int", nullable: false)
+                    NationalityId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FkUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    UserMiddleName = table.Column<string>(type: "nvarchar(50)", nullable: true),
-                    UserSurname = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    FkAddressId = table.Column<int>(type: "int", nullable: false)
+                    NationalityName = table.Column<string>(type: "nvarchar(50)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsersExtended", x => x.UsersExtendedId);
-                    table.ForeignKey(
-                        name: "FK_UsersExtended_Addresses_FkAddressId",
-                        column: x => x.FkAddressId,
-                        principalTable: "Addresses",
-                        principalColumn: "AddressId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UsersExtended_AspNetUsers_FkUserId",
-                        column: x => x.FkUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Nationality", x => x.NationalityId);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,8 +111,8 @@ namespace BookOnShelf.Migrations
                     ISBNNumber = table.Column<string>(type: "nvarchar(13)", nullable: false),
                     BookPages = table.Column<int>(type: "int", nullable: false),
                     BookQuantity = table.Column<int>(type: "int", nullable: false),
-                    FrontCover = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    BackCover = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(300)", nullable: false),
+                    FrontCover = table.Column<string>(type: "nvarchar(255)", nullable: false),
                     FkGenreId = table.Column<int>(type: "int", nullable: false),
                     FkLanguageId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -134,28 +134,23 @@ namespace BookOnShelf.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BooksWriters",
+                name: "Authors",
                 columns: table => new
                 {
-                    BookWriterId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FkBookId = table.Column<int>(type: "int", nullable: false),
-                    FkAuthorId = table.Column<int>(type: "int", nullable: false)
+                    AuthorName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
+                    FkNationalityId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BooksWriters", x => x.BookWriterId);
+                    table.PrimaryKey("PK_Authors", x => x.AuthorId);
                     table.ForeignKey(
-                        name: "FK_BooksWriters_Authors_FkAuthorId",
-                        column: x => x.FkAuthorId,
-                        principalTable: "Authors",
-                        principalColumn: "AuthorId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BooksWriters_Books_FkBookId",
-                        column: x => x.FkBookId,
-                        principalTable: "Books",
-                        principalColumn: "BookId",
+                        name: "FK_Authors_Nationality_FkNationalityId",
+                        column: x => x.FkNationalityId,
+                        principalTable: "Nationality",
+                        principalColumn: "NationalityId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -216,6 +211,32 @@ namespace BookOnShelf.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BooksWriters",
+                columns: table => new
+                {
+                    BookWriterId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FkBookId = table.Column<int>(type: "int", nullable: false),
+                    FkAuthorId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BooksWriters", x => x.BookWriterId);
+                    table.ForeignKey(
+                        name: "FK_BooksWriters_Authors_FkAuthorId",
+                        column: x => x.FkAuthorId,
+                        principalTable: "Authors",
+                        principalColumn: "AuthorId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BooksWriters_Books_FkBookId",
+                        column: x => x.FkBookId,
+                        principalTable: "Books",
+                        principalColumn: "BookId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Fines",
                 columns: table => new
                 {
@@ -237,16 +258,20 @@ namespace BookOnShelf.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_FkAddressId",
+                table: "AspNetUsers",
+                column: "FkAddressId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Addresses_PostalCode",
                 table: "Addresses",
                 column: "PostalCode",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Authors_FirstName_LastName",
+                name: "IX_Authors_FkNationalityId",
                 table: "Authors",
-                columns: new[] { "FirstName", "LastName" },
-                unique: true);
+                column: "FkNationalityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_FkGenreId",
@@ -311,20 +336,25 @@ namespace BookOnShelf.Migrations
                 table: "Reserved",
                 column: "UserId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersExtended_FkAddressId",
-                table: "UsersExtended",
-                column: "FkAddressId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersExtended_FkUserId",
-                table: "UsersExtended",
-                column: "FkUserId");
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUsers_Addresses_FkAddressId",
+                table: "AspNetUsers",
+                column: "FkAddressId",
+                principalTable: "Addresses",
+                principalColumn: "AddressId",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_AspNetUsers_Addresses_FkAddressId",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Addresses");
+
             migrationBuilder.DropTable(
                 name: "BooksWriters");
 
@@ -335,16 +365,13 @@ namespace BookOnShelf.Migrations
                 name: "Reserved");
 
             migrationBuilder.DropTable(
-                name: "UsersExtended");
-
-            migrationBuilder.DropTable(
                 name: "Authors");
 
             migrationBuilder.DropTable(
                 name: "BorrowedBooks");
 
             migrationBuilder.DropTable(
-                name: "Addresses");
+                name: "Nationality");
 
             migrationBuilder.DropTable(
                 name: "Books");
@@ -354,6 +381,30 @@ namespace BookOnShelf.Migrations
 
             migrationBuilder.DropTable(
                 name: "Languages");
+
+            migrationBuilder.DropIndex(
+                name: "IX_AspNetUsers_FkAddressId",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "DateOfBirth",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "FkAddressId",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "MiddleName",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "Name",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "Surname",
+                table: "AspNetUsers");
         }
     }
 }

@@ -30,16 +30,12 @@ namespace BookOnShelf.Data.Models
         public int BookQuantity { get; set; }
 
         [Required(ErrorMessage = "Please enter a description!")]
-        [Column(TypeName = "varchar(300)")]
+        [Column(TypeName = "nvarchar(300)")]
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Please enter the file for the front cover!")]
-        [Column(TypeName = "varbinary(max)")]
-        public byte[] FrontCover { get; set; }
-
-        [Required(ErrorMessage = "Please enter the file for the back cover!")]
-        [Column(TypeName = "varbinary(max)")]
-        public byte[] BackCover { get; set; }
+        [Column(TypeName = "nvarchar(255)")]
+        public string FrontCover { get; set; }
 
         [Required(ErrorMessage = "Please choose a genre")]
         [ForeignKey("FkGenreId")]
