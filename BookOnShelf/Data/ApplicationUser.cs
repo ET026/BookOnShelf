@@ -8,20 +8,20 @@ namespace BookOnShelf.Data
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
-        [Required]
-        [Column(TypeName = "nvarchar(50)")]
-        public string Name { get; set; }
+        //[Required]
+        //[Column(TypeName = "nvarchar(50)")]
+        //public string Name { get; set; }
 
-        [Column(TypeName = "nvarchar(50)")]
-        public string? MiddleName { get; set; } = null;
+        //[Column(TypeName = "nvarchar(50)")]
+        //public string? MiddleName { get; set; } = null;
 
-        [Required]
-        [Column(TypeName = "nvarchar(50)")]
-        public string Surname { get; set; }
+        //[Required]
+        //[Column(TypeName = "nvarchar(50)")]
+        //public string Surname { get; set; }
 
 
-        [ForeignKey("FkAddressId")]
-        public Addresses Address { get; set; }
+        //[ForeignKey("FkAddressId")]
+        //public Addresses Address { get; set; } = null;
     }
 
 }

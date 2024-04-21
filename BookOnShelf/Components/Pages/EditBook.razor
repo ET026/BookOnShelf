@@ -1,0 +1,192 @@
+﻿@page "/EditBook/{BookId:int}"
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext context
+
+
+<PageTitle>Edit Book</PageTitle>
+@if (bookForm != null)
+{
+    <EditForm Model="bookForm" OnSubmit="EditBookAsync" class="row g-3">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="col-md-6">
+            <label for="title" class="form-label">Title</label>
+            <InputText id="title" class="form-control" @bind-Value="bookForm.Title" />
+        </div>
+        <div class="col-md-6">
+            <label for="isbn" class="form-label">ISBN</label>
+            <InputText id="isbn" class="form-control" @bind-Value="bookForm.ISBNNumber" />
+        </div>
+        <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="bookForm.Description" />
+        </div>
+        <div class="col-md-6">
+            <label for="genre" class="form-label">Genre</label>
+            <InputSelect id="genre" @bind-Value="SelectedGenreId" class="form-select">
+                <option selected disabled value="@SelectedGenre">@SelectedGenre</option>
+                @if (genres != null)
+                {
+                    @foreach (var genre in genres)
+                    {
+                        <option value="@genre.GenreId">@genre.GenreName</option>
+                    }
+                }
+                else
+                {
+                    <option value="">No genre found, add one!</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="language" class="form-label">Language</label>
+            <InputSelect id="language" @bind-Value="SelectedLanguageId" class="form-select">
+                <option selected disabled value="@SelectedLanguage">@SelectedLanguage</option>
+                @if (languages != null)
+                {
+                    @foreach (var language in languages)
+                    {
+                        <option value="@language.LanguageId">@language.LanguageName</option>
+                    }
+                }
+                else
+                {
+                    <option value="">No language found, add one!</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label for="Author" class="form-label">Author</label>
+            <InputSelect id="author" @bind-Value="SelectedAuthorId" class="form-select">
+                <option selected disabled>Authors</option>
+                @if (authors != null)
+                {
+                    @foreach (var author in authors)
+                    {
+                        <option value="@author.AuthorId">@author.AuthorName | @author.DateOfBirth </option>
+                    }
+                }
+                else
+                {
+                    <option value="">No author found, add one!</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="quantity" class="form-label">How many books</label>
+            <InputNumber id="quantity" class="form-control" TValue="int" @bind-Value="bookForm.BookQuantity" />
+        </div>
+        <div class="col-md-6">
+            <label for="pages" class="form-label">How many pages</label>
+            <InputNumber id="pages" class="form-control" TValue="int" @bind-Value="bookForm.BookPages" />
+        </div>
+        <div class="col-12">
+            <label for="cover" class="form-label">Upload front cover</label>
+            <InputFile id="cover" class="form-control" OnChange="HandleFrontCoverUpload" />
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </EditForm>
+}
+@code {
+    [Parameter]
+    public int BookId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Books bookForm { get; set; } = new Books();
+
+    public List<Books> books;
+    public List<Genres> genres;
+    public List<Languages> languages;
+    public List<Authors> authors;
+    public List<BooksWriters> booksWriters;
+    List<ApplicationUser> users;
+
+
+
+    string SelectedLanguageId { get; set; }
+    string SelectedAuthorId { get; set; }
+    string SelectedGenreId { get; set; }
+    private byte[] TemporaryPlaceForFrontImage;
+
+    string SelectedGenre { get; set; }
+    string SelectedLanguage { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookForm ??= new();
+        genres = await context.Genres.ToListAsync();
+        languages = await context.Languages.ToListAsync();
+        authors = await context.Authors.ToListAsync();
+        users = await context.Users.ToListAsync();
+        bookForm = await context.Books.FirstOrDefaultAsync(b => b.BookId == BookId);
+
+        SelectedGenre = bookForm.Genre.GenreName.ToString();
+        SelectedLanguage = bookForm.Language.LanguageName.ToString();
+    }
+
+    public async Task EditBookAsync()
+    {
+        var existingISBN = await context.Books.FirstOrDefaultAsync(b => b.ISBNNumber == bookForm.ISBNNumber);
+
+        if (existingISBN is null)
+        {
+            bookForm.Genre = genres.FirstOrDefault(g => g.GenreId == int.Parse(SelectedGenreId));
+            bookForm.Language = languages.FirstOrDefault(l => l.LanguageId == int.Parse(SelectedLanguageId));
+            bookForm.FrontCover = TemporaryPlaceForFrontImage;
+
+            context.Books.Add(bookForm);
+            await context.SaveChangesAsync();
+
+
+        }
+    }
+
+    private Genres GetSelectedGenre()
+    {
+        if (genres != null)
+        {
+            return genres.FirstOrDefault(g => g.GenreId == int.Parse(SelectedGenreId));
+        }
+        return null;
+    }
+
+    private Languages GetSelectedLanguage()
+    {
+        if (languages != null)
+        {
+            return languages.FirstOrDefault(l => l.LanguageId == int.Parse(SelectedLanguageId));
+        }
+        return null;
+    }
+
+    private Authors GetSelectedAuthor()
+    {
+        if (authors != null)
+        {
+            return authors.FirstOrDefault(a => a.AuthorId == int.Parse(SelectedAuthorId));
+        }
+        return null;
+    }
+
+
+    public async Task HandleFrontCoverUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var ImageFile = e.File;
+            TemporaryPlaceForFrontImage = new byte[ImageFile.Size];
+
+            await ImageFile.OpenReadStream().ReadAsync(TemporaryPlaceForFrontImage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error uploading front picture!" + ex);
+        }
+    }
+}

@@ -4,114 +4,73 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
-	<div class="container-fluid p-1">
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon "></span>
-		</button>
-		<div class="navbar justify-content-center">
-			<AuthorizeView Roles="Admin">
-				<a class="navbar-brand d-flex" href="/admin">
-					BookOnShelf
-				</a>
-			</AuthorizeView>
-			<AuthorizeView Roles="User">
-				<a class="navbar-brand d-flex" href="/employees">
-					BookOnShelf
-				</a>
-			</AuthorizeView>
-			<AuthorizeView>
-				<NotAuthorized>
-					<a class="navbar-brand d-flex" href="/#">
-						BookOnShelf
-					</a>
-				</NotAuthorized>
-			</AuthorizeView>
-		</div>
+    <div class="container-fluid p-1">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon "></span>
+        </button>
+        <div class="navbar justify-content-center">
+            <AuthorizeView Roles="Admin">
+                <a class="navbar-brand d-flex" href="/admin">
+                    BookOnShelf
+                </a>
+            </AuthorizeView>
+            <AuthorizeView Roles="User">
+                <a class="navbar-brand d-flex" href="/employees">
+                    BookOnShelf
+                </a>
+            </AuthorizeView>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <a class="navbar-brand d-flex" href="/#">
+                        BookOnShelf
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
 
-		<div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-			<ul class="navbar-nav fs-4">
-				<AuthorizeView Roles="Admin">
-
-
-
-					<li class="nav-item smaller-font">
-
-						<NavLink class="nav-link" href="/DeleteUsers">
-							Gebruikers
-						</NavLink>
-
-					</li>
-
-					<div class="d-flex align-items-center justify-content-center">
-						<div class="vertical-line"></div>
-					</div>
-
-					<li class="nav-item smaller-font">
-
-						<NavLink class="nav-link" href="/CarsOverview">
-							Auto Overzicht
-						</NavLink>
-
-					</li>
-
-					<div class="d-flex align-items-center justify-content-center">
-						<div class="vertical-line"></div>
-					</div>
-
-					<li class="nav-item smaller-font">
-
-						<NavLink class="nav-link" href="/AddTrip">
-							Rit Toevoegen
-						</NavLink>
-
-					</li>
-
-				</AuthorizeView>
-				<AuthorizeView Roles="Admin, Customer">
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav fs-4">
+              
+                <AuthorizeView Roles="Admin, Customer">
 
 
-					<li class="nav-item smaller-font">
+                    <li class="nav-item smaller-font">
 
-						<NavLink class="nav-link" href="/Reserve">
-							Rit Reserveren
-						</NavLink>
+                        <NavLink class="nav-link" href="/AllBooks">
+                            Alle Boeken
+                        </NavLink>
 
-					</li>
+                    </li>
 
-					<div class="d-flex align-items-center justify-content-center">
-						<div class="vertical-line"></div>
-					</div>
+                    <li class="nav-item smaller-font">
 
-					<li class="nav-item smaller-font">
+                        <NavLink class="nav-link" href="/Account/Manage">
+                            Mijn gegevens
+                        </NavLink>
 
-						<NavLink class="nav-link" href="/Account/Manage">
-							Mijn gegevens
-						</NavLink>
+                    </li>
 
-					</li>
+                    <li class="nav-item smaller-font">
+                        <form action="account/logout" method="post">
+                            <AntiforgeryToken />
+                            <input type="hidden" name="ReturnURL" value="#" />
+                            <button type="submit" class="nav-item nav-link">
+                                <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Log uit
+                            </button>
+                        </form>
+                    </li>
 
-					<li class="nav-item smaller-font">
-						<form action="account/logout" method="post">
-							<AntiforgeryToken />
-							<input type="hidden" name="ReturnURL" value="#" />
-							<button type="submit" class="nav-item nav-link">
-								<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Log uit
-							</button>
-						</form>
-					</li>
-
-
-				</AuthorizeView>
-				<AuthorizeView>
-					<NotAuthorized>
-						<li>
-							<a class="nav-item smaller-font nav-link" href="/#">Inloggen</a>
-						</li>
-					</NotAuthorized>
-				</AuthorizeView>
-			</ul>
-		</div>
-	</div>
+                </AuthorizeView>
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <li>
+                            <a class="nav-item smaller-font nav-link" href="/#">Inloggen</a>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+        </div>
+    </div>
 </nav>
 
 

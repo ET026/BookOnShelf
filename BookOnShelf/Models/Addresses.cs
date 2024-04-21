@@ -2,11 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace BookOnShelf.Data.Models
 {
 
     [Table("Addresses")]
-    [Index(nameof(PostalCode), IsUnique = true)]
+    [Index(nameof(PostalCode),nameof(NumberAddition), nameof(Number), nameof(Street), nameof(City), IsUnique = true)]
     public class Addresses
     {
         [Key]

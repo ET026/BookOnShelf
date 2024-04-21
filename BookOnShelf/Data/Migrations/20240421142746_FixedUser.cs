@@ -5,7 +5,7 @@
 namespace BookOnShelf.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangedRequired : Migration
+    public partial class FixedUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

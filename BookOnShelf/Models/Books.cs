@@ -34,8 +34,7 @@ namespace BookOnShelf.Data.Models
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Please enter the file for the front cover!")]
-        [Column(TypeName = "nvarchar(255)")]
-        public string FrontCover { get; set; }
+        public byte[] FrontCover { get; set; }
 
         [Required(ErrorMessage = "Please choose a genre")]
         [ForeignKey("FkGenreId")]

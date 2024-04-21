@@ -4,47 +4,150 @@
 @using Microsoft.EntityFrameworkCore
 
 
-@inject ApplicationDbContext Context
-
+@inject ApplicationDbContext context
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> userManager
 
 @rendermode InteractiveServer
+
 <PageTitle>All Books</PageTitle>
+<button class="btn btn-green">Voeg een boek toe</button>
+
+<hr />
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
-    @if(Books != null)
+    @if (Books != null)
     {
+
         @foreach (var book in Books)
         {
-            <div class="card" style="width: 18rem;">
-                <img src="@book.FrontCover" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">@book.Title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="@(GetImageSource(book.FrontCover))" class="img-fluid rounded-start" alt="Sorry i am tired so loading the image failed D:">
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"><strong>@book.Title</strong></h5>
+                            <p class="card-text"><b>Genre: </b>Genre: @book.Genre.GenreName</p>
+                            <p class="card-text"><b>ISBN-13: </b>@book.ISBNNumber</p>
+                            <p class="card-text"><b>Taal: </b> @book.Language.LanguageName | <b>Paginas: </b>@book.BookPages</p>
+                            <p class="card-text"><b>Boeken beschikbaar: </b>@book.BookQuantity</p>
+                            <AuthorizeView Roles="Admin">
+                                <button class="btn btn-primary" @onclick='() => navigationManager.NavigateTo($"/EditBook/{book.BookId}")'>Edit</button>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Customer">
+                                @if (book.BookQuantity <= 0)
+                                {
+                                    <button class="btn btn-primary" @onclick="ReserveBook">Reserveren</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" @* @onclick="@(LendBook(book.BookId))" *@>Lenen</button>
+                                }
+                            </AuthorizeView>
+                            <button class="bi bi-info-circle btn end-0" id="infoButton" @onmouseover="ShowPopup" @onmouseleave="HidePopup"></button>
+                            <div class="popup" id="popup" style="display: @popupDisplay">
+                                <hr />
+                                <p>
+                                    @book.Description
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
+
     }
     else
     {
 
     }
-    
-    
+
+
 </div>
 
 @code {
     public List<Books> Books;
     public List<BooksWriters> BooksWriters;
+    public List<BorrowingBooks> borrowingBooks;
+    public List<ReservedBooks> reservedBooks;
+    List<ApplicationUser> users;
+
+    private ClaimsPrincipal authUser;
 
     protected override async Task OnInitializedAsync()
     {
-        BooksWriters = await Context.BooksWriters.ToListAsync();
+        borrowingBooks = await context.BorrowingBooks.ToListAsync();
+        BooksWriters = await context.BooksWriters.ToListAsync();
 
-        Books = await Context.Books
+        Books = await context.Books
         .Include(books => books.Language)
         .Include(books => books.Genre)
         .ToListAsync();
     }
+    private string GetImageSource(byte[] imageData)
+    {
+        if (imageData == null || imageData.Length == 0)
+            return null;
 
+        return $"data:image/jpeg;base64,{Convert.ToBase64String(imageData)}";
+    }
+
+    private async Task LendBook()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        authUser = authState.User;
+        var user = await userManager.FindByEmailAsync(authUser.Identity.Name);
+
+        // if(user.Id != null)
+        // {
+        //     var borrowingRecord = new BorrowingBooks
+        //     {
+        //         User = user.Id,
+        //         books = 
+        //     }
+        // }
+    }
+
+    private async Task ReserveBook()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        authUser = authState.User;
+        var user = await userManager.FindByEmailAsync(authUser.Identity.Name);
+    }
+}
+
+@code {
+    private string? Message;
+    private string popupDisplay = "none";
+
+    private void ShowPopup()
+    {
+        popupDisplay = "block";
+    }
+
+    private void HidePopup()
+    {
+        popupDisplay = "none";
+    }
+
+    private string GetAlertClass()
+    {
+        if (Message.StartsWith("Success"))
+        {
+            return "alert-success";
+        }
+        else if (Message.StartsWith("Error"))
+        {
+            return "alert-danger";
+        }
+        else
+        {
+            return "alert-warning";
+        }
+    }
 }

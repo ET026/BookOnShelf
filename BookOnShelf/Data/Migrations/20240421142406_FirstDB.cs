@@ -6,18 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BookOnShelf.Migrations
 {
     /// <inheritdoc />
-    public partial class DBStart : Migration
+    public partial class FirstDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateOnly>(
-                name: "DateOfBirth",
-                table: "AspNetUsers",
-                type: "date",
-                nullable: false,
-                defaultValue: new DateOnly(1, 1, 1));
-
             migrationBuilder.AddColumn<int>(
                 name: "FkAddressId",
                 table: "AspNetUsers",
@@ -112,7 +105,7 @@ namespace BookOnShelf.Migrations
                     BookPages = table.Column<int>(type: "int", nullable: false),
                     BookQuantity = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(300)", nullable: false),
-                    FrontCover = table.Column<string>(type: "nvarchar(255)", nullable: false),
+                    FrontCover = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     FkGenreId = table.Column<int>(type: "int", nullable: false),
                     FkLanguageId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -263,10 +256,11 @@ namespace BookOnShelf.Migrations
                 column: "FkAddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Addresses_PostalCode",
+                name: "IX_Addresses_PostalCode_NumberAddition_Number_Street_City",
                 table: "Addresses",
-                column: "PostalCode",
-                unique: true);
+                columns: new[] { "PostalCode", "NumberAddition", "Number", "Street", "City" },
+                unique: true,
+                filter: "[NumberAddition] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Authors_FkNationalityId",
@@ -384,10 +378,6 @@ namespace BookOnShelf.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_AspNetUsers_FkAddressId",
-                table: "AspNetUsers");
-
-            migrationBuilder.DropColumn(
-                name: "DateOfBirth",
                 table: "AspNetUsers");
 
             migrationBuilder.DropColumn(
