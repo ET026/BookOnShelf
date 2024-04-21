@@ -4,6 +4,7 @@ using BookOnShelf.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookOnShelf.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240421142406_FirstDB")]
+    partial class FirstDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,11 +44,21 @@ namespace BookOnShelf.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int>("FkAddressId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -67,6 +80,10 @@ namespace BookOnShelf.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -75,6 +92,8 @@ namespace BookOnShelf.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FkAddressId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -342,30 +361,6 @@ namespace BookOnShelf.Migrations
                     b.ToTable("Reserved");
                 });
 
-            modelBuilder.Entity("BookOnShelf.Models.BorrowingBooks", b =>
-                {
-                    b.Property<int>("BorrowingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BorrowingId"));
-
-                    b.Property<int>("FkBookId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FkUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("BorrowingId");
-
-                    b.HasIndex("FkBookId");
-
-                    b.HasIndex("FkUserId");
-
-                    b.ToTable("BorrowingBooks");
-                });
-
             modelBuilder.Entity("BookOnShelf.Models.Nationality", b =>
                 {
                     b.Property<int>("NationalityId")
@@ -381,36 +376,6 @@ namespace BookOnShelf.Migrations
                     b.HasKey("NationalityId");
 
                     b.ToTable("Nationality");
-                });
-
-            modelBuilder.Entity("BookOnShelf.Models.ReservedBooks", b =>
-                {
-                    b.Property<int>("ReservedId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservedId"));
-
-                    b.Property<int>("FkBookId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FkUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ReservedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ReservedUntil")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ReservedId");
-
-                    b.HasIndex("FkBookId");
-
-                    b.HasIndex("FkUserId");
-
-                    b.ToTable("ReservedBooks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -546,6 +511,17 @@ namespace BookOnShelf.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BookOnShelf.Data.ApplicationUser", b =>
+                {
+                    b.HasOne("BookOnShelf.Data.Models.Addresses", "Address")
+                        .WithMany()
+                        .HasForeignKey("FkAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+                });
+
             modelBuilder.Entity("BookOnShelf.Data.Models.Authors", b =>
                 {
                     b.HasOne("BookOnShelf.Models.Nationality", "nationalityId")
@@ -636,44 +612,6 @@ namespace BookOnShelf.Migrations
                     b.HasOne("BookOnShelf.Data.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BookOnShelf.Models.BorrowingBooks", b =>
-                {
-                    b.HasOne("BookOnShelf.Data.Models.Books", "books")
-                        .WithMany()
-                        .HasForeignKey("FkBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookOnShelf.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("FkUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("books");
-                });
-
-            modelBuilder.Entity("BookOnShelf.Models.ReservedBooks", b =>
-                {
-                    b.HasOne("BookOnShelf.Data.Models.Books", "Book")
-                        .WithMany()
-                        .HasForeignKey("FkBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookOnShelf.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("FkUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

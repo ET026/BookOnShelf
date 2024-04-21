@@ -3,39 +3,47 @@
 
 @rendermode InteractiveServer
 
-
-<EditForm Model="book" OnValidSubmit="GetBookFromISBN" FormName="ISBN">
-    <InputText @bind-Value="book.ISBNNumber">Enter ISBN</InputText>
-    <button type="submit">Submit</button>
-</EditForm>
+@inject ApplicationDbContext context
 
 
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert @GetAlertClass()" role="alert">
+        @Message
+    </div>
+}
+
+=
 <div class="card mb-3" style="max-width: 540px;">
     <div class="row g-0">
         <div class="col-md-4">
-            <img src="http://books.google.com/books/content?id=i-VtzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api" class="img-fluid rounded-start" alt="Sorry i am tired so loading the image failed D:">
+            <img src="@book.FrontCover" class="img-fluid rounded-start" alt="Sorry i am tired so loading the image failed D:">
         </div>
 
         <div class="col-md-8">
             <div class="card-body">
-                <h5 class="card-title">Can't Hurt me'</h5>
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                <h5 class="card-title">@book.Title</h5>
+                <p class="card-text">  </p>
                 <button class="btn btn-green">Reserveren</button>
                 <button class="bi bi-info-circle btn end-0" id="infoButton" @onmouseover="ShowPopup" @onmouseleave="HidePopup"></button>
                 <div class="popup" id="popup" style="display: @popupDisplay">
                     <p>
 
+
                     </p>
-                    <hr>
-              
+
+
                 </div>
             </div>
-            
         </div>
-        
     </div>
 </div>
-@* 
+
+
+
+
+@*
 1.Boek titel - X
 2.Img - X
 3.Description - X
@@ -45,56 +53,124 @@
 7.Taal
 8.ISBN
 *@
+@* @code {
+    [Parameter]
+    public Books books { get; set; } = new Books();
+
+    private Languages language { get; set; } = new Languages();
+    private Genres genre { get; set; } = new Genres();
+    private BooksWriters booksWriters { get; set; } = new BooksWriters();
+    private Nationality nationality { get; set; } = new Nationality();
+    private Authors author { get; set; } = new Authors();
+
+    List<Books> allBooks = new List<Books>();
+
+    private string? Message;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        allBooks = await context.Books
+                .Include(allBooks => allBooks.Language)
+                .Include(allBooks => allBooks.Genre)
+                .ToListAsync();
+    }
+} *@
+
 @code {
     [Parameter]
     public Books book { get; set; } = new Books();
 
-    public Languages language { get; set; } = new Languages();
-    public Genres genre { get; set; } = new Genres();
-    public BooksWriters booksWriters { get; set; } = new BooksWriters();
-    public Nationality nationality { get; set; } = new Nationality();
+    private Languages language { get; set; } = new Languages();
+    private Genres genre { get; set; } = new Genres();
+    private BooksWriters booksWriters { get; set; } = new BooksWriters();
+    private Nationality nationality { get; set; } = new Nationality();
+    private Authors author { get; set; } = new Authors();
 
-
+    private string? Message;
 
     public async Task GetBookFromISBN()
     {
-        var client = new HttpClient();
-        var apiKey = "xoxoxo"; // Replace this with your Google Books API key
-        var requestUri = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{book.ISBNNumber}&key={apiKey}";
+        var existingISBN = await context.Books.FirstOrDefaultAsync(b => b.ISBNNumber == book.ISBNNumber);
 
-        try
+
+        if (existingISBN is null)
         {
-            using (var response = await client.GetAsync(requestUri))
+            var client = new HttpClient();
+            var requestUri = $"http://openlibrary.org/api/books?bibkeys=ISBN:{book.ISBNNumber}&jscmd=details&format=json";
+
+            try
             {
-                response.EnsureSuccessStatusCode();
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                if (!string.IsNullOrEmpty(responseBody))
+                using (var response = await client.GetAsync(requestUri))
                 {
+                    response.EnsureSuccessStatusCode();
+                    var responseBody = await response.Content.ReadAsStringAsync();
 
-                    dynamic bookInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(responseBody);
+                    if (!string.IsNullOrEmpty(responseBody))
+                    {
 
-                    book.Title = bookInfo.items[0].volumeInfo.title;
-                    book.BookPages = bookInfo.items[0].volumeInfo.pageCount;
-                    book.Description = bookInfo.items[0].volumeInfo.description;
-                    language.LanguageName = bookInfo.items[0].volumeInfo.language;
-                    genre.GenreName = bookInfo.items[0].volumeInfo.categories;
-                    // nationality.NationalityName = bookInfo.items[0].volumeInfo.nationa
+                        dynamic bookInfo = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(responseBody);
 
-                    Console.WriteLine(bookInfo);
-                }
-                else
-                {
-                    Console.WriteLine("No book found for the provided ISBN.");
+                        Console.WriteLine(bookInfo);
+
+                        book.Title = bookInfo.items[0].volumeInfo.title;
+                        book.BookPages = bookInfo.items[0].volumeInfo.pageCount;
+                        book.Description = bookInfo.items[0].volumeInfo.description;
+                        language.LanguageName = bookInfo.items[0].volumeInfo.language;
+                        foreach (var genres in bookInfo.items[0].volumeInfo.categories)
+                        {
+                            genre.GenreName = genres;
+                        }
+
+                        foreach (var authors in bookInfo.items[0].volumeInfo.authors)
+                        {
+                            author.AuthorName = authors;
+                        }
+
+                        book.FrontCover = bookInfo.items[0].volumeInfo.thumbnail;
+
+                        Console.WriteLine("AAAAAAAAA");
+                        Console.WriteLine(genre.GenreName);
+                        Console.WriteLine("AAAAAAAAAAA");
+                        Console.WriteLine(bookInfo);
+
+                        var existingLanguage = await context.Languages.FirstOrDefaultAsync(l => l.LanguageName == language.LanguageName);
+                        var existingGenre = await context.Genres.FirstOrDefaultAsync(g => g.GenreName == genre.GenreName);
+
+                        if (existingLanguage is null)
+                        {
+                            var newGenreInstance = new Genres { GenreName = genre.GenreName };
+                            // await context.Genres.AddAsync(newGenreInstance.GenreName);
+                            await context.SaveChangesAsync();
+                        }
+                        if (existingGenre is null)
+                        {
+                            var newLanguageInstance = new Languages();
+                            newLanguageInstance.LanguageName = language.LanguageName;
+                            // context.Languages.AddAsync(newLanguageInstance.LanguageName);
+                            await context.SaveChangesAsync();
+                        }
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("No book found for the provided ISBN.");
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
+
         }
+
     }
 }
+
 @code {
     private string popupDisplay = "none";
 
@@ -106,5 +182,21 @@
     private void HidePopup()
     {
         popupDisplay = "none";
+    }
+
+    private string GetAlertClass()
+    {
+        if (Message.StartsWith("Success"))
+        {
+            return "alert-success";
+        }
+        else if (Message.StartsWith("Error"))
+        {
+            return "alert-danger";
+        }
+        else
+        {
+            return "alert-warning";
+        }
     }
 }

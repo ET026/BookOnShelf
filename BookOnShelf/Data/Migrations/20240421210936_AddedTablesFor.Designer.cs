@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookOnShelf.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240420182725_RemoveBirthDay")]
-    partial class RemoveBirthDay
+    [Migration("20240421210936_AddedTablesFor")]
+    partial class AddedTablesFor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,21 +44,11 @@ namespace BookOnShelf.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("FkAddressId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("MiddleName")
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -80,10 +70,6 @@ namespace BookOnShelf.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -92,8 +78,6 @@ namespace BookOnShelf.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FkAddressId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -134,8 +118,9 @@ namespace BookOnShelf.Migrations
 
                     b.HasKey("AddressId");
 
-                    b.HasIndex("PostalCode")
-                        .IsUnique();
+                    b.HasIndex("PostalCode", "NumberAddition", "Number", "Street", "City")
+                        .IsUnique()
+                        .HasFilter("[NumberAddition] IS NOT NULL");
 
                     b.ToTable("Addresses");
                 });
@@ -189,9 +174,9 @@ namespace BookOnShelf.Migrations
                     b.Property<int>("FkLanguageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FrontCover")
+                    b.Property<byte[]>("FrontCover")
                         .IsRequired()
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("ISBNNumber")
                         .IsRequired()
@@ -508,17 +493,6 @@ namespace BookOnShelf.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("BookOnShelf.Data.ApplicationUser", b =>
-                {
-                    b.HasOne("BookOnShelf.Data.Models.Addresses", "Address")
-                        .WithMany()
-                        .HasForeignKey("FkAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("BookOnShelf.Data.Models.Authors", b =>

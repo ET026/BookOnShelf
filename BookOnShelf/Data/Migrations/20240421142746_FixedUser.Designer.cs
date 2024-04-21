@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookOnShelf.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240420175803_DBStart")]
-    partial class DBStart
+    [Migration("20240421142746_FixedUser")]
+    partial class FixedUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,9 +36,6 @@ namespace BookOnShelf.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -137,8 +134,9 @@ namespace BookOnShelf.Migrations
 
                     b.HasKey("AddressId");
 
-                    b.HasIndex("PostalCode")
-                        .IsUnique();
+                    b.HasIndex("PostalCode", "NumberAddition", "Number", "Street", "City")
+                        .IsUnique()
+                        .HasFilter("[NumberAddition] IS NOT NULL");
 
                     b.ToTable("Addresses");
                 });
@@ -192,9 +190,9 @@ namespace BookOnShelf.Migrations
                     b.Property<int>("FkLanguageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FrontCover")
+                    b.Property<byte[]>("FrontCover")
                         .IsRequired()
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("ISBNNumber")
                         .IsRequired()
