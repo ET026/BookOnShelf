@@ -10,6 +10,7 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject UserManager<ApplicationUser> usermanager
 
 <PageTitle>Log in</PageTitle>
 
@@ -66,6 +67,24 @@
 	</div>
 </div>
 
+
+<script>
+	function togglePasswordVisibility() {
+		var passwordInput = document.getElementById("passwordInput");
+		var toggleIcon = document.getElementById('togglePassword');
+
+		if (passwordInput.type === "password") {
+			passwordInput.type = "text";
+			toggleIcon.classList.remove("bi-eye-slash");
+			toggleIcon.classList.add("bi-eye");
+		} else {
+			passwordInput.type = "password";
+			toggleIcon.classList.remove("bi-eye");
+			toggleIcon.classList.add("bi-eye-slash");
+		}
+	}
+</script>
+
 @code {
     private string? errorMessage;
 
@@ -84,6 +103,27 @@
         {
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+			// var user = await usermanager.GetUserAsync(HttpContext.User);
+
+			// // stuurt gebruiker naar de juiste pagina als hun login nog werkt en ze al ingelogd zijn
+			// if (user != null)
+			// {
+			// 	var roles = await usermanager.GetRolesAsync(user);
+
+			// 	if (roles.Contains("Admin"))
+			// 	{
+			// 		RedirectManager.RedirectTo("/AllBooks");
+			// 	}
+			// 	else if (roles.Contains("User"))
+			// 	{
+			// 		RedirectManager.RedirectTo("/AllBooks");
+			// 	}
+			// 	else
+			// 	{
+			// 		// Redirect to a default page
+			// 		RedirectManager.RedirectTo("/");
+			// 	}
+			// }
         }
     }
 
@@ -95,7 +135,25 @@
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+            // RedirectManager.RedirectTo(ReturnUrl);
+
+			var user = await usermanager.FindByEmailAsync(Input.Email);
+
+			var roles = await usermanager.GetRolesAsync(user);
+
+			if (roles.Contains("Admin"))
+			{
+				RedirectManager.RedirectTo("/AllBooks");
+			}
+			else if (roles.Contains("User"))
+			{
+				RedirectManager.RedirectTo("/AllBooks");
+			}
+			else
+			{
+				// Redirect to a default page
+				RedirectManager.RedirectTo("/");
+			}
         }
         else if (result.RequiresTwoFactor)
         {

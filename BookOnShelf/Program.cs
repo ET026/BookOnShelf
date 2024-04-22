@@ -53,43 +53,43 @@ else
     app.UseHsts();
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var roles = new[] { "Admin", "Customer" };
+//using (var scope = app.Services.CreateScope())
+//{
+//    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+//    var roles = new[] { "Admin", "Customer" };
 
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-}
+//    foreach (var role in roles)
+//    {
+//        if (!await roleManager.RoleExistsAsync(role))
+//        {
+//            await roleManager.CreateAsync(new IdentityRole(role));
+//        }
+//    }
+//}
 
-using (var scope = app.Services.CreateScope())
-{
-    UserManager<ApplicationUser>? userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    Addresses addresses;
-    string email = "Erenay@Erenay.com";
-    string password = "Password123!";
+//using (var scope = app.Services.CreateScope())
+//{
+//    UserManager<ApplicationUser>? userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+//    Addresses addresses;
+//    string email = "Erenay@Erenay.com";
+//    string password = "Password123!";
 
-    if (userManager.FindByEmailAsync(email).Result == null)
-    {
-        ApplicationUser? user = new ApplicationUser();
-        user.UserName = email;
-        user.Email = email;
-        //user.EmailConfirmed = true;
-        //user.Name = "admin";
-        //user.Surname = "admin";
-        //user.Address = null;
+//    if (userManager.FindByEmailAsync(email).Result == null)
+//    {
+//        ApplicationUser? user = new ApplicationUser();
+//        user.UserName = email;
+//        user.Email = email;
+//        //user.EmailConfirmed = true;
+//        //user.Name = "admin";
+//        //user.Surname = "admin";
+//        //user.Address = null;
 
-        await userManager.CreateAsync(user, password);
+//        await userManager.CreateAsync(user, password);
 
-        await userManager.AddToRoleAsync(user, "Admin");
+//        await userManager.AddToRoleAsync(user, "Admin");
 
-    }
-}
+//    }
+//}
 
 app.UseHttpsRedirection();
 

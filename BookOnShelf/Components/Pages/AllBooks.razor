@@ -12,8 +12,14 @@
 @rendermode InteractiveServer
 
 <PageTitle>All Books</PageTitle>
-<button class="btn btn-green">Voeg een boek toe</button>
+<a href="/AddBook"><button class="btn btn-green">Voeg een boek toe</button></a>
 
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert @GetAlertClass()" role="alert">
+        @Message
+    </div>
+}
 <hr />
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -41,11 +47,11 @@
                             <AuthorizeView Roles="Customer">
                                 @if (book.BookQuantity <= 0)
                                 {
-                                    <button class="btn btn-primary" @onclick="ReserveBook">Reserveren</button>
+                                    <button class="btn btn-primary" @onclick="@(async () => await ReserveBook(book.BookId))">Reserveren</button>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-primary" @* @onclick="@(LendBook(book.BookId))" *@>Lenen</button>
+                                    <button class="btn btn-primary" @onclick="@(async () => await LendBook(book.BookId))">Lenen</button>
                                 }
                             </AuthorizeView>
                             <button class="bi bi-info-circle btn end-0" id="infoButton" @onmouseover="ShowPopup" @onmouseleave="HidePopup"></button>
@@ -97,27 +103,40 @@
         return $"data:image/jpeg;base64,{Convert.ToBase64String(imageData)}";
     }
 
-    private async Task LendBook()
+    private async Task LendBook(int bookId)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        authUser = authState.User;
+        var authUser = authState.User;
+
         var user = await userManager.FindByEmailAsync(authUser.Identity.Name);
 
-        // if(user.Id != null)
-        // {
-        //     var borrowingRecord = new BorrowingBooks
-        //     {
-        //         User = user.Id,
-        //         books = 
-        //     }
-        // }
+        if (user != null)
+        {
+            var userId = user.Id;
+            var bookToLend = context.Books.FirstOrDefault(b => b.BookId == bookId);
+
+            if (bookToLend != null)
+            {
+                var borrowingRecord = new BorrowingBooks
+                    {
+                        User = user,
+                        books = bookToLend
+                    };
+                bookToLend.BookQuantity--;
+                context.BorrowingBooks.Add(borrowingRecord);
+                await context.SaveChangesAsync();
+
+                Message = "Succes: Reserved Book";
+            }
+        }
     }
 
-    private async Task ReserveBook()
+    private async Task ReserveBook(int BookId)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         authUser = authState.User;
         var user = await userManager.FindByEmailAsync(authUser.Identity.Name);
+
     }
 }
 
