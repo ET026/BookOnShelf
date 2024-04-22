@@ -20,5 +20,11 @@ namespace BookOnShelf.Models
         [ForeignKey("FkBookId")]
         public Books books { get; set; }
 
+        [Required]
+        public DateTime LendStartDate { get; set; }
+
+        [Required]
+        public DateTime LendEndDate { get; set; }
+
     }
 }

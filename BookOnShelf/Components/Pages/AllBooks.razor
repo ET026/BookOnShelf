@@ -114,28 +114,61 @@
         {
             var userId = user.Id;
             var bookToLend = context.Books.FirstOrDefault(b => b.BookId == bookId);
+            var startDate = DateTime.UtcNow;
+            var endDate = DateTime.UtcNow.AddDays(21).Date.AddHours(17);
 
             if (bookToLend != null)
             {
                 var borrowingRecord = new BorrowingBooks
                     {
                         User = user,
-                        books = bookToLend
+                        books = bookToLend,
+                        LendStartDate = startDate,
+                        LendEndDate = endDate
                     };
                 bookToLend.BookQuantity--;
                 context.BorrowingBooks.Add(borrowingRecord);
                 await context.SaveChangesAsync();
 
-                Message = "Succes: Reserved Book";
+                Message = "Succes: Je hebt de boek geleend van ";
+                Message += startDate.ToString("dd/MM/yyyy HH:mm");
+                Message += " tot ";
+                Message += endDate.ToString("dd/MM/yyyy HH:mm");
             }
         }
     }
 
-    private async Task ReserveBook(int BookId)
+    private async Task ReserveBook(int bookId)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         authUser = authState.User;
         var user = await userManager.FindByEmailAsync(authUser.Identity.Name);
+
+        if (user != null)
+        {
+            var userId = user.Id;
+            var bookToReserve = context.Books.FirstOrDefault(b => b.BookId == bookId);
+
+            if (bookToReserve != null)
+            {
+
+                var reservingRecord = new ReservedBooks
+                    {
+                        User = user,
+                        Book = bookToReserve,
+                        ReservedDate = DateTime.UtcNow
+                    };
+                context.ReservedBooks.Add(reservingRecord);
+                await context.SaveChangesAsync();
+
+                Message = "Succes: Reserved the book, you will get a email when you can pick it up!";
+
+            }
+            else
+            {
+                Message = "Error: Kan reservering niet plaatsen, probeer aub opnieuw!";
+            }
+        }
 
     }
 }
