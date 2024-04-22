@@ -9,13 +9,8 @@
             <span class="navbar-toggler-icon "></span>
         </button>
         <div class="navbar justify-content-center">
-            <AuthorizeView Roles="Admin">
-                <a class="navbar-brand d-flex" href="/admin">
-                    BookOnShelf
-                </a>
-            </AuthorizeView>
-            <AuthorizeView Roles="User">
-                <a class="navbar-brand d-flex" href="/employees">
+            <AuthorizeView Roles="Admin, Customers">
+                <a class="navbar-brand d-flex" href="/AllBooks">
                     BookOnShelf
                 </a>
             </AuthorizeView>

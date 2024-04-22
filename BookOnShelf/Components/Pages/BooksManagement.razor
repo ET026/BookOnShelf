@@ -134,22 +134,22 @@
                         Console.WriteLine("AAAAAAAAAAA");
                         Console.WriteLine(bookInfo);
 
-                        var existingLanguage = await context.Languages.FirstOrDefaultAsync(l => l.LanguageName == language.LanguageName);
-                        var existingGenre = await context.Genres.FirstOrDefaultAsync(g => g.GenreName == genre.GenreName);
+                        // var existingLanguage = await context.Languages.FirstOrDefaultAsync(l => l.LanguageName == language.LanguageName);
+                        // var existingGenre = await context.Genres.FirstOrDefaultAsync(g => g.GenreName == genre.GenreName);
 
-                        if (existingLanguage is null)
-                        {
-                            var newGenreInstance = new Genres { GenreName = genre.GenreName };
-                            // await context.Genres.AddAsync(newGenreInstance.GenreName);
-                            await context.SaveChangesAsync();
-                        }
-                        if (existingGenre is null)
-                        {
-                            var newLanguageInstance = new Languages();
-                            newLanguageInstance.LanguageName = language.LanguageName;
-                            // context.Languages.AddAsync(newLanguageInstance.LanguageName);
-                            await context.SaveChangesAsync();
-                        }
+                        // if (existingLanguage is null)
+                        // {
+                        //     var newGenreInstance = new Genres { GenreName = genre.GenreName };
+                        //     // await context.Genres.AddAsync(newGenreInstance.GenreName);
+                        //     await context.SaveChangesAsync();
+                        // }
+                        // if (existingGenre is null)
+                        // {
+                        //     var newLanguageInstance = new Languages();
+                        //     newLanguageInstance.LanguageName = language.LanguageName;
+                        //     // context.Languages.AddAsync(newLanguageInstance.LanguageName);
+                        //     await context.SaveChangesAsync();
+                        // }
 
                     }
                     else
